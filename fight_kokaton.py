@@ -11,6 +11,36 @@ NUM_OF_BOMBS = 5  # 爆弾の個数
 NUM_OF_BEAMS = 5  # ビームの最大数
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+class Explosion:
+    """
+    爆発エフェクトに関するクラス
+    """
+    def __init__(self, center: tuple[int, int]):
+        """
+        爆発画像Surfaceを生成し、座標と表示時間を設定
+        center: 爆発位置（爆弾の中心座標）
+        """
+        # explosion.gifとflip画像をリストに格納
+        img0 = pg.image.load("fig/explosion.gif")
+        img1 = pg.transform.flip(img0, True, False)
+        img2 = pg.transform.flip(img0, False, True)
+        self.imgs = [img0, img1, img2]
+        self.rct = self.imgs[0].get_rect()
+        self.rct.center = center
+        self.life = 20  # 爆発表示フレーム数（調整可）
+        self.frame = 0
+
+    def update(self, screen: pg.Surface):
+        """
+        爆発を描画し、表示時間を管理
+        """
+        if self.life > 0:
+            # lifeの偶奇で画像を切り替え（目がチラチラしない工夫）
+            img = self.imgs[self.frame % len(self.imgs)]
+            screen.blit(img, self.rct)
+            self.life -= 1
+            self.frame += 1
+
 
 def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     """
@@ -149,6 +179,7 @@ def main():
     bird = Bird((300, 200))
     bomb = Bomb((255, 0, 0), 10)
     bombs = []  # 爆弾用の空のリスト
+    boms = []  # 爆弾用の空のリスト
     for _ in range(NUM_OF_BOMBS):  # NUM_OF_BOMBS個の爆弾を追加
         bomb = Bomb((255, 0, 0), 10)
         bombs.append(bomb)
@@ -158,6 +189,7 @@ def main():
         beams.append(beam)
 
     beam = None  # ゲーム初期化時にはビームは存在しない
+    explosions = []  # 爆発エフェクト用の空のリスト
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -185,7 +217,7 @@ def main():
                     # ビームと爆弾の衝突判定
                     beam, bomb = None, None
                     bird.change_img(6, screen)
-        
+
         for b, bomb in enumerate(bombs):
             if beams is not None:
                 for beam in beams:
@@ -201,7 +233,7 @@ def main():
             if beam is not None:
                 if beam.rct.left > WIDTH:
                     beams[bea] = None
-        beams = [beam for beam in beams if beam is not None] 
+        beams = [beam for beam in beams if beam is not None]
          
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
