@@ -7,7 +7,7 @@ import pygame as pg
 
 WIDTH = 1100  # ゲームウィンドウの幅
 HEIGHT = 650  # ゲームウィンドウの高さ
-num_of_num = 20   # 爆弾の数
+num_of_num = 5   # 爆弾の数
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 class Explosion:
